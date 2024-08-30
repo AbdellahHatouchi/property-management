@@ -6,6 +6,8 @@
 
 generator client {
   provider = "prisma-client-js"
+  output          = "./generated/edge"
+  previewFeatures = ["deno"]
 }
 
 datasource db {
