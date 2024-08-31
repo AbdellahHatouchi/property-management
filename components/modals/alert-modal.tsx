@@ -10,13 +10,21 @@ interface AlertModalProps {
   onClose: () => void;
   onConfirm: () => void;
   loading: boolean;
+  btnVariant?: "default" |
+  "primary" |
+  "destructive" |
+  "outline" |
+  "secondary" |
+  "ghost" |
+  "link";
 }
 
 export const AlertModal: React.FC<AlertModalProps> = ({
   isOpen,
   onClose,
   onConfirm,
-  loading
+  loading,
+  btnVariant
 }) => {
   const [isMounted, setIsMounted] = useState(false);
 
@@ -39,7 +47,7 @@ export const AlertModal: React.FC<AlertModalProps> = ({
         <Button disabled={loading} variant="outline" onClick={onClose}>
           Cancel
         </Button>
-        <Button disabled={loading} variant="destructive" onClick={onConfirm}>Continue</Button>
+        <Button disabled={loading} variant={btnVariant ? btnVariant : "destructive"} onClick={onConfirm}>Continue</Button>
       </div>
     </Modal>
   );

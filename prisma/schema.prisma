@@ -72,7 +72,6 @@ model Tenant {
   phoneNumber      String
   address          String
   dateOfBirth      DateTime
-  payments         Payment[]
   rentalProperties RentalProperty[]
   businessId       String
   business         Business         @relation(fields: [businessId], references: [id])
@@ -116,32 +115,22 @@ enum PropertyType {
 }
 
 model RentalProperty {
-  id          String   @id @default(uuid())
-  propertyId  String
-  unit        String // Specific unit within the property
-  rentalCost  Float
-  tenantId    String
-  totalAmount Float // Total amount for the rental period
-  startDate   DateTime // Start date of the rental period
-  endDate     DateTime // End date of the rental period
-  businessId  String
+  id           String   @id @default(uuid())
+  rentalNumber String   @unique
+  propertyId   String
+  unit         String // Specific unit within the property
+  rentalCost   Float
+  tenantId     String
+  totalAmount  Float // Total amount for the rental period
+  startDate    DateTime // Start date of the rental period
+  endDate      DateTime // End date of the rental period
+  businessId   String
+  datePaid     DateTime?
+  settled      Boolean  @default(false) // True if payment is settled, false otherwise
 
   tenant   Tenant   @relation(fields: [tenantId], references: [id])
   business Business @relation(fields: [businessId], references: [id])
   property Property @relation(fields: [propertyId], references: [id])
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
-
-model Payment {
-  id       String   @id @default(uuid())
-  tenantId String
-  amount   Float
-  datePaid DateTime
-  settled  Boolean  @default(false) // True if payment is settled, false otherwise
-
-  tenant Tenant @relation(fields: [tenantId], references: [id])
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

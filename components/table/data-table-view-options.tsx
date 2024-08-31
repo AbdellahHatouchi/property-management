@@ -43,7 +43,7 @@ export function DataTableViewOptions<TData>({
             className="md:ml-auto flex"
           >
             <Settings2 className="mr-2 h-4 w-4" />
-            Affiche
+            View
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-[200px]">

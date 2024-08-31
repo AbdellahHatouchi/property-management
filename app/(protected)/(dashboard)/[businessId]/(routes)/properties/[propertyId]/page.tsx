@@ -4,11 +4,12 @@ import { PropertyForm } from "./_components/property-form";
 const PropertyPage = async ({
   params
 }: {
-  params: { propertyId: string }
+  params: { propertyId: string, businessId: string }
 }) => {
   const property = await db.property.findUnique({
     where: {
-      id: params.propertyId
+      id: params.propertyId,
+      businessId: params.businessId
     },
     include: {
       units: true

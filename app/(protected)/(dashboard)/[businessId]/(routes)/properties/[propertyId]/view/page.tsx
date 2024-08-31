@@ -4,12 +4,14 @@ import { redirect } from "next/navigation"
 
 const PropertyViewPage = async ({ params }: {
   params: {
-    propertyId: string
+    propertyId: string,
+    businessId: string,
   }
 }) => {
   const property = await db.property.findUnique({
     where: {
       id: params.propertyId,
+      businessId: params.businessId
     },
     include: {
       units: true

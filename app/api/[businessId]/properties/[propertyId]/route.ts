@@ -139,7 +139,7 @@ export async function DELETE(
             return new NextResponse("Property id is required", { status: 400 });
         }
         const deletedProperty = await db.$transaction(async (tx) => {
-            // Step 2: Delete the property itself
+            // Step 1: Delete the property itself
             const property = await tx.property.delete({
                 where: {
                     id: params.propertyId,
@@ -150,6 +150,12 @@ export async function DELETE(
             if (property) {
                 // Step 2: Delete all units associated with the property
                 await tx.unit.deleteMany({
+                    where: {
+                        propertyId: params.propertyId,
+                    },
+                });
+                // Step 3: Delete all rental associated with the property
+                await tx.rentalProperty.deleteMany({
                     where: {
                         propertyId: params.propertyId,
                     },

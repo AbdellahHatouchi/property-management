@@ -4,12 +4,14 @@ import { redirect } from "next/navigation"
 
 const TenantViewPage = async ({ params }: {
   params: {
-    tenantId: string
+    tenantId: string,
+    businessId: string
   }
 }) => {
   const tenant = await db.tenant.findUnique({
     where: {
       id: params.tenantId,
+      businessId: params.businessId
     }
   })
 

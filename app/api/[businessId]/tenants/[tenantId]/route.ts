@@ -115,21 +115,30 @@ export async function DELETE(
         if (!params.tenantId) {
             return new NextResponse("Tenant id is required", { status: 400 });
         }
-
-        const tenant = await db.tenant.delete({
-            where: {
-                id: params.tenantId,
-                businessId: params.businessId,
-            },
+        const deletedTenant = await db.$transaction(async (tx) => {
+            const tenant = await tx.tenant.delete({
+                where: {
+                    id: params.tenantId,
+                    businessId: params.businessId,
+                },
+            });
+            if (tenant) {
+                await tx.rentalProperty.deleteMany({
+                    where:{
+                        tenantId: tenant.id,
+                    }
+                })
+            }
+            return tenant;
         });
 
-        if (!tenant) {
+        if (!deletedTenant) {
             return new NextResponse("Not Found", { status: 404 });
         }
 
-        return NextResponse.json(tenant);
+        return NextResponse.json(deletedTenant);
     } catch (error) {
         console.log("[TENANT_DELETE]", error);
         return new NextResponse("Internal error", { status: 500 });
-    } 
+    }
 }

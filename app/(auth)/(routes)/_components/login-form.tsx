@@ -15,8 +15,10 @@ import { FormSuccess } from '../_components/form-success';
 import { BackButton } from '@/components/auth/back-button';
 import axios, { AxiosError } from 'axios';
 import { toast } from 'sonner';
+import { useRouter } from 'next/navigation';
 
 export const LoginForm = () => {
+  const router = useRouter()
   const [isSeePwd, setIsSeePwd] = useState<boolean>(false);
   const [error, setError] = useState<string | undefined>('');
   const [success, setSuccess] = useState<string | undefined>('');
@@ -42,6 +44,9 @@ export const LoginForm = () => {
         const { data } = res;
         setError(data?.error)
         setSuccess(data?.success)
+        if (data?.success){
+          router.refresh()
+        }
       } catch (error) {
         const { error: msg } = (error as AxiosError).response?.data as { error: string }
           || { error: "Something went wrong." }

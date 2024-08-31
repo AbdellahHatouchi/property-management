@@ -89,19 +89,44 @@ export const propertySchema = z
     .refine(
         (data) => {
             if (data.type === PropertyType.HOUSE) {
-                if (
-                    data.units.length > 1
-                ) {
+                if (data.units.length > 1) {
                     return false;
                 }
             }
             return true;
         },
         {
-            message: "A property of type 'House' cannot create a multiple units.",
+            message:
+                "A property of type 'House' cannot create a multiple units.",
             path: ["units"],
         }
     );
 export const SettingSchema = z.object({
-    showAPIDoc: z.boolean()
-})
+    showAPIDoc: z.boolean(),
+});
+
+export const RentalPropertySchema = z.object({
+    rentalNumber: z.string().min(2, "the rental number is required"),
+    propertyId: z.string().uuid("Please select the Property"),
+    unit: z.string().min(2, "the unit is required"),
+    rentalType: z.enum(["Daily", "Monthly"]),
+    tenantId: z.string().uuid("Please select the tenant"),
+    rentalDateRange: z
+        .object({
+            from: z.coerce.date(),
+            to: z.coerce.date(),
+        })
+        .refine((data) => data.to >= data.from, {
+            message: "The 'to' date must be after or equal to the 'from' date",
+            path: ["to"],
+        }),
+}).refine((data) => {
+    if (data.rentalType === "Monthly") {
+      const dayDiff = Math.ceil((data.rentalDateRange.to.getTime() - data.rentalDateRange.from.getTime()) / (1000 * 60 * 60 * 24));
+      return dayDiff % 30 === 0;
+    }
+    return true; // If rentalType is not "Monthly", the validation passes
+  }, {
+    message: "For 'Monthly' rentals, the date range must be exactly 30, 60, 90 days, etc.",
+    path: ["rentalDateRange"], // Specify that the error pertains to the 'to' field in the date range
+  });;

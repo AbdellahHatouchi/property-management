@@ -29,6 +29,11 @@ export function MainNav({
       active: pathname === `/${params.businessId}/properties`,
     },
     {
+      href: `/${params.businessId}/rentals`,
+      label: 'Rental Property',
+      active: pathname === `/${params.businessId}/rentals`,
+    },
+    {
       href: `/${params.businessId}/settings`,
       label: 'Settings',
       active: pathname === `/${params.businessId}/settings`,

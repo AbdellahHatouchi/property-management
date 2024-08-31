@@ -4,11 +4,12 @@ import { TenantForm } from "./_components/tenant-form";
 const TenantPage = async ({
   params
 }: {
-  params: { tenantId: string }
+  params: { tenantId: string, businessId: string },
 }) => {
   const tenant = await db.tenant.findUnique({
     where: {
-      id: params.tenantId
+      id: params.tenantId,
+      businessId: params.businessId
     }
   });
 
