@@ -48,7 +48,7 @@ const DocumentPDF: React.FC<DocumentPDFProps> = ({ rentalData }) => {
       <Page style={tw('p-12 font-sans')} size={'A4'}>
         {/* Header Section */}
         <View style={tw('flex flex-row justify-between items-center')}>
-          <Image src={'/error.png'} style={tw('w-32 h-32')} />
+          <Image src={'/img.png'} style={tw('w-32 h-32')} />
           <View style={tw('flex flex-col justify-center items-center')}>
             <Text style={tw('font-bold text-4xl uppercase leading-5 m-0')}>{rentalData.business.name}</Text>
             <Text style={tw('font-semibold uppercase text-base m-0')}>Property Management</Text>
@@ -57,7 +57,7 @@ const DocumentPDF: React.FC<DocumentPDFProps> = ({ rentalData }) => {
             </Text>
             <Text style={tw('text-lg uppercase m-0')}>Property Management</Text>
           </View>
-          <Image src={'/error.png'} style={tw('w-32 h-32')} />
+          <Image src={'/img.png'} style={tw('w-32 h-32')} />
         </View>
 
         {/* Rental Details Section */}

@@ -162,13 +162,15 @@ export async function GET(
             return new NextResponse("Business id is required", { status: 400 });
         }
 
-        const rentals = await db.rentalProperty.findMany({
+        const expiredRentals = await db.rentalProperty.findMany({
             where: {
                 businessId: params.businessId,
+                endDate: { lte: new Date() },
+                settled: false,
             },
         });
 
-        return NextResponse.json(rentals);
+        return NextResponse.json(expiredRentals);
     } catch (error) {
         console.log("[PROPERTY_GET]", error);
         return new NextResponse("Internal error", { status: 500 });

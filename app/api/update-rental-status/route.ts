@@ -1,0 +1,107 @@
+import { db } from "@/lib/db";
+import { sendMail } from "@/lib/mail";
+import { formattedNumberToMAD } from "@/lib/utils";
+import { Business, RentalProperty, Tenant, User } from "@prisma/client";
+import { format } from "date-fns";
+
+export async function GET() {
+    try {
+        let expiredRentals: (RentalProperty & {
+            tenant: Tenant;
+            business: Business & {
+                User: User;
+            };
+        })[] = [];
+        // Start a transaction
+        await db.$transaction(async (tx) => {
+            // Fetch rentals that have expired but are not settled
+            expiredRentals = await tx.rentalProperty.findMany({
+                where: {
+                    endDate: { lte: new Date() },
+                },
+                include: {
+                    tenant: true, // Include tenant information
+                    business: {
+                        include: {
+                            User: true, // Include user information from the business
+                        },
+                    },
+                },
+            });
+
+            for (const rental of expiredRentals) {
+                if (rental.settled) {
+                    // Mark the specific unit as available
+                    await tx.unit.updateMany({
+                        where: { number: rental.unit },
+                        data: { isAvailable: true },
+                    });
+
+                    // Mark the property as available
+                    await tx.property.update({
+                        where: { id: rental.propertyId },
+                        data: { isAvailable: true },
+                    });
+                }
+            }
+        });
+
+        const emailPromises = expiredRentals.map((rental) => {
+            const rentalsEmailData = {
+                settled: rental.settled,
+                datePaid: rental.datePaid
+                    ? format(rental.datePaid, "MMMM do yyyy")
+                    : "-----",
+                rentalNumber: rental.rentalNumber,
+                startDate: format(rental.startDate, "MMMM do yyyy"),
+                endDate: format(rental.endDate, "MMMM do yyyy"),
+                id: rental.id,
+                businessId: rental.businessId,
+                unit: rental.unit,
+                totalAmount: formattedNumberToMAD(rental.totalAmount),
+            };
+
+            const tenantEmailData = {
+                to: rental.tenant.email, // The tenant's email address
+                rentals: [rentalsEmailData],
+                subject: "Expired Rental Property Notification",
+                username: rental.tenant.name || "Valued Customer", // The tenant's name or a fallback
+            };
+
+            const userEmailData = {
+                to: rental.business.User.email, // The user's email address
+                rentals: [rentalsEmailData],
+                subject: "Expired Rental Property Notification",
+                username: rental.business.User.name || "Business Owner", // The user's name or a fallback
+            };
+
+            // Send email to both the tenant and the user
+            return Promise.all([
+                sendMail(tenantEmailData),
+                sendMail(userEmailData),
+            ]);
+        });
+
+        await Promise.all(emailPromises);
+
+        return new Response(
+            JSON.stringify({
+                message:
+                    "Rental statuses updated and notifications sent successfully",
+            }),
+            {
+                status: 200,
+                headers: { "Content-Type": "application/json" },
+            }
+        );
+    } catch (error) {
+        console.error("Error updating rental statuses:", error);
+        return new Response(
+            JSON.stringify({ message: "Internal server error" }),
+            {
+                status: 500,
+                headers: { "Content-Type": "application/json" },
+            }
+        );
+    }
+}

@@ -1,7 +1,7 @@
 "use client";
 
 import * as z from "zod"
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
@@ -13,6 +13,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { useBusinessModal } from "@/hooks/use-business-modal";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
+import { signOut } from "next-auth/react";
 
 const formSchema = z.object({
   name: z.string().min(1),
@@ -37,7 +38,13 @@ export const BusinessModal = () => {
       const response = await axios.post('/api/business', values);
       window.location.assign(`/${response.data.id}`);
     } catch (error) {
-      toast.error('Something went wrong');
+      const msg = (error as AxiosError).response?.data as string;
+      toast.error(msg || 'Something went wrong.');
+      if((error as AxiosError).response?.status === 403){
+        await signOut({
+          callbackUrl: '/sign-in'
+        })
+      }
     } finally {
       setLoading(false);
     }
