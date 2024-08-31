@@ -68,8 +68,10 @@ export const ShowRentalProperty = ({ data }: showRentalPropertyProps) => {
         onClose={() => setOpen(false)}
         onConfirm={onDelete}
         loading={loading}
+        key={'delete'}
       />
       <AlertModal
+        key={'paid'}
         isOpen={openToPaid}
         onClose={() => setOpenToPaid(false)}
         onConfirm={onPaid}
@@ -97,10 +99,10 @@ export const ShowRentalProperty = ({ data }: showRentalPropertyProps) => {
               </Button>
             )}
           </PDFDownloadLink>
-          <Button disabled={loading} variant="primary" size="sm" onClick={() => setOpen(true)}>
+          {!data.settled && (<Button disabled={loading} variant="primary" size="sm" onClick={() => setOpenToPaid(true)}>
             <BadgeDollarSign className="h-4 w-4 mr-2" />
             Paid
-          </Button>
+          </Button>)}
           <Button disabled={loading} variant="destructive" size="sm" onClick={() => setOpen(true)}>
             <Trash className="h-4 w-4 mr-2" />
             Delete

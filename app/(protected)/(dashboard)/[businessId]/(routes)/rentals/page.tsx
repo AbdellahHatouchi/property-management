@@ -68,9 +68,15 @@ const RentalsPage = async ({ params }: {
       businessId: params.businessId
     },
   });
-
-  // Balance (Total Cash In - Total Cash Out)
-  const balance = (totalCashIn._sum.totalAmount || 0) - (totalCashOut._sum.totalAmount || 0);
+  // average cost
+  const averageRentalCost = await db.rentalProperty.aggregate({
+    _avg: {
+      rentalCost: true,
+    },
+    where: {
+      businessId: params.businessId
+    },
+  });
 
   return (
     <>
@@ -78,7 +84,7 @@ const RentalsPage = async ({ params }: {
         data={formattedData}
         totalCashIn={totalCashIn._sum.totalAmount || 0}
         totalCashOut={totalCashOut._sum.totalAmount || 0}
-        balance={balance}
+        costAverage={averageRentalCost._avg.rentalCost || 0}
       />
     </>
   )

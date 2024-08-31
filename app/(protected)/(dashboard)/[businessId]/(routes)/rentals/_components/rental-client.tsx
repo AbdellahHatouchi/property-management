@@ -14,14 +14,14 @@ interface RentalsClientProps {
   data: RentalColumn[];
   totalCashIn: number
   totalCashOut: number
-  balance: number
+  costAverage: number
 }
 
 const RentalsClient = ({
   data,
   totalCashIn,
   totalCashOut,
-  balance,
+  costAverage
 }: RentalsClientProps) => {
   const params = useParams();
   const router = useRouter();
@@ -53,8 +53,8 @@ const RentalsClient = ({
       icon: CreditCard
     },
     {
-      label: 'Balance',
-      total: balance,
+      label: 'Rental Cost Average',
+      total: costAverage,
       icon: Activity
     },
   ] as CardReportProps[]
