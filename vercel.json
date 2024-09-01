@@ -2,7 +2,7 @@
   "crons": [
     {
       "path": "/api/update-rental-status",
-      "schedule": "*/3 * * * *"
+      "schedule": "*/15 * * * *"
     }
   ]
 }
