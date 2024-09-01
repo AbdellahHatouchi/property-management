@@ -15,10 +15,12 @@ import { FormSuccess } from '../_components/form-success';
 import { BackButton } from '@/components/auth/back-button';
 import axios, { AxiosError } from 'axios';
 import { toast } from 'sonner';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 
 export const LoginForm = () => {
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const callbackUrl = searchParams.get('callbackUrl');
   const [isSeePwd, setIsSeePwd] = useState<boolean>(false);
   const [error, setError] = useState<string | undefined>('');
   const [success, setSuccess] = useState<string | undefined>('');
@@ -34,7 +36,7 @@ export const LoginForm = () => {
   const handleChangeSeePwd = () => {
     setIsSeePwd((prev) => !prev);
   }
-
+  
   const onSubmit = (values: z.infer<typeof LoginSchema>) => {
     setError('')
     setSuccess('')
@@ -45,7 +47,11 @@ export const LoginForm = () => {
         setError(data?.error)
         setSuccess(data?.success)
         if (data?.success){
-          router.refresh()
+          if (callbackUrl){
+            router.push(callbackUrl)
+          }else {
+            router.refresh()
+          }
         }
       } catch (error) {
         const { error: msg } = (error as AxiosError).response?.data as { error: string }

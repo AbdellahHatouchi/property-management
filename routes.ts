@@ -1,8 +1,6 @@
 // this list of route don't require authentication
 
-export const publicRoutes = [
-  '/',
-]
+export const publicRoutes = ['/p']
 
 // array of routes used authentication
 
