@@ -3,7 +3,34 @@ import { sendMail } from "@/lib/mail";
 import { formattedNumberToMAD } from "@/lib/utils";
 import { Business, RentalProperty, Tenant, User } from "@prisma/client";
 import { format } from "date-fns";
-
+/**
+ * @swagger
+ * /api/update-rental-status:
+ *   get:
+ *     summary: Retrieve and process expired rental properties
+ *     description: Fetches rental properties that have expired and are not settled, updates their statuses, and sends notifications to tenants and business users.
+ *     responses:
+ *       200:
+ *         description: Rental statuses updated and notifications sent successfully.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Rental statuses updated and notifications sent successfully"
+ *       500:
+ *         description: Internal server error.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Internal server error"
+ */
 export async function GET() {
     try {
         let expiredRentals: (RentalProperty & {

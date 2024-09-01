@@ -3,6 +3,124 @@ import { UserAuth } from "@/lib/get-current-user";
 import { tenantSchema } from "@/schema";
 import { NextResponse } from "next/server";
 
+/**
+ * @swagger
+ * /api/businessId/tenants:
+ *   post:
+ *     summary: Create a new tenant
+ *     description: Registers a new tenant for a business owned by the authenticated user. Validates the provided tenant data and ensures the business ID belongs to the user.
+ *     requestBody:
+ *       description: Tenant data to create.
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               cinOrPassport:
+ *                 type: string
+ *                 example: "C1234567"
+ *               name:
+ *                 type: string
+ *                 example: "Jane Doe"
+ *               address:
+ *                 type: string
+ *                 example: "123 Main St, Anytown, AT 12345"
+ *               dateOfBirth:
+ *                 type: string
+ *                 format: date
+ *                 example: "1990-01-01"
+ *               email:
+ *                 type: string
+ *                 format: email
+ *                 example: tenant@example.com
+ *               isTourist:
+ *                 type: boolean
+ *                 example: false
+ *               phoneNumber:
+ *                 type: string
+ *                 example: "+1234567890"
+ *             required:
+ *               - cinOrPassport
+ *               - name
+ *               - address
+ *               - dateOfBirth
+ *               - email
+ *               - isTourist
+ *               - phoneNumber
+ *     parameters:
+ *       - in: path
+ *         name: businessId
+ *         required: true
+ *         schema:
+ *           type: string
+ *           example: "business-id-123"
+ *     responses:
+ *       200:
+ *         description: Tenant created successfully.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 id:
+ *                   type: string
+ *                   example: "tenant-id-123"
+ *                 cinOrPassport:
+ *                   type: string
+ *                   example: "C1234567"
+ *                 name:
+ *                   type: string
+ *                   example: "Jane Doe"
+ *                 address:
+ *                   type: string
+ *                   example: "123 Main St, Anytown, AT 12345"
+ *                 dateOfBirth:
+ *                   type: string
+ *                   format: date
+ *                   example: "1990-01-01"
+ *                 email:
+ *                   type: string
+ *                   format: email
+ *                   example: tenant@example.com
+ *                 isTourist:
+ *                   type: boolean
+ *                   example: false
+ *                 phoneNumber:
+ *                   type: string
+ *                   example: "+1234567890"
+ *                 businessId:
+ *                   type: string
+ *                   example: "business-id-123"
+ *       400:
+ *         description: Invalid tenant data or missing business ID.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: string
+ *               example: "Invalid Tenant Data!"
+ *       403:
+ *         description: User is not authenticated.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: string
+ *               example: "Unauthenticated"
+ *       405:
+ *         description: Business ID does not belong to the authenticated user.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: string
+ *               example: "Unauthorized"
+ *       500:
+ *         description: Internal server error.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: string
+ *               example: "Internal error"
+ */
 export async function POST(
     req: Request,
     { params }: { params: { businessId: string } }
@@ -65,7 +183,80 @@ export async function POST(
         return new NextResponse("Internal error", { status: 500 });
     }
 }
-
+/**
+ * @swagger
+ * /api/{businessId}/tenants:
+ *   get:
+ *     summary: Retrieve tenants for a business
+ *     description: Fetches a list of tenants associated with a specified business. The business must belong to the authenticated user.
+ *     parameters:
+ *       - in: path
+ *         name: businessId
+ *         required: true
+ *         schema:
+ *           type: string
+ *           example: "business-id-123"
+ *     responses:
+ *       200:
+ *         description: List of tenants for the specified business.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   id:
+ *                     type: string
+ *                     example: "tenant-id-123"
+ *                   cinOrPassport:
+ *                     type: string
+ *                     example: "C1234567"
+ *                   name:
+ *                     type: string
+ *                     example: "Jane Doe"
+ *                   address:
+ *                     type: string
+ *                     example: "123 Main St, Anytown, AT 12345"
+ *                   dateOfBirth:
+ *                     type: string
+ *                     format: date
+ *                     example: "1990-01-01"
+ *                   email:
+ *                     type: string
+ *                     format: email
+ *                     example: tenant@example.com
+ *                   isTourist:
+ *                     type: boolean
+ *                     example: false
+ *                   phoneNumber:
+ *                     type: string
+ *                     example: "+1234567890"
+ *                   businessId:
+ *                     type: string
+ *                     example: "business-id-123"
+ *       400:
+ *         description: Missing or invalid business ID.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: string
+ *               example: "Business id is required"
+ *       403:
+ *         description: User is not authenticated.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: string
+ *               example: "Unauthenticated"
+ *       500:
+ *         description: Internal server error.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: string
+ *               example: "Internal error"
+ */
 export async function GET(
     req: Request,
     { params }: { params: { businessId: string } }

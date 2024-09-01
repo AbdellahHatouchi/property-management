@@ -2,9 +2,138 @@ import { db } from "@/lib/db";
 import { UserAuth } from "@/lib/get-current-user";
 import { calculateAmount } from "@/lib/utils";
 import { RentalPropertySchema } from "@/schema";
-import { PropertyType } from "@prisma/client";
 import { NextResponse } from "next/server";
 
+/**
+ * @swagger
+ * /api/{businessId}/rentals:
+ *   post:
+ *     summary: Create a new rental property
+ *     description: Creates a new rental property for a given business. The business must belong to the authenticated user, and the property must exist and have available units.
+ *     parameters:
+ *       - in: path
+ *         name: businessId
+ *         required: true
+ *         schema:
+ *           type: string
+ *           example: "business-id-123"
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               propertyId:
+ *                 type: string
+ *                 example: "property-id-123"
+ *               rentalDateRange:
+ *                 type: object
+ *                 properties:
+ *                   from:
+ *                     type: string
+ *                     format: date
+ *                     example: "2024-01-01"
+ *                   to:
+ *                     type: string
+ *                     format: date
+ *                     example: "2024-01-31"
+ *               rentalNumber:
+ *                 type: string
+ *                 example: "R123456"
+ *               rentalType:
+ *                 type: string
+ *                 enum: [Daily, Monthly]
+ *                 example: "Monthly"
+ *               tenantId:
+ *                 type: string
+ *                 example: "tenant-id-123"
+ *               unit:
+ *                 type: string
+ *                 example: "A1"
+ *             required:
+ *               - propertyId
+ *               - rentalDateRange
+ *               - rentalNumber
+ *               - rentalType
+ *               - tenantId
+ *               - unit
+ *     responses:
+ *       200:
+ *         description: Rental property created successfully.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 id:
+ *                   type: string
+ *                   example: "rental-id-123"
+ *                 propertyId:
+ *                   type: string
+ *                   example: "property-id-123"
+ *                 tenantId:
+ *                   type: string
+ *                   example: "tenant-id-123"
+ *                 rentalCost:
+ *                   type: number
+ *                   example: 500.00
+ *                 rentalNumber:
+ *                   type: string
+ *                   example: "R123456"
+ *                 unit:
+ *                   type: string
+ *                   example: "A1"
+ *                 totalAmount:
+ *                   type: number
+ *                   example: 1500.00
+ *                 startDate:
+ *                   type: string
+ *                   format: date
+ *                   example: "2024-01-01"
+ *                 endDate:
+ *                   type: string
+ *                   format: date
+ *                   example: "2024-01-31"
+ *                 businessId:
+ *                   type: string
+ *                   example: "business-id-123"
+ *       400:
+ *         description: Missing or invalid data.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: string
+ *               example: "Invalid Rental Data!"
+ *       403:
+ *         description: User is not authenticated.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: string
+ *               example: "Unauthenticated"
+ *       404:
+ *         description: Property or tenant not found or unit not available.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: string
+ *               example: "Property Not Found"
+ *       405:
+ *         description: Business ID does not belong to the authenticated user.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: string
+ *               example: "Unauthorized"
+ *       500:
+ *         description: Internal server error.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: string
+ *               example: "Internal error"
+ */
 export async function POST(
     req: Request,
     { params }: { params: { businessId: string } }
@@ -147,6 +276,86 @@ export async function POST(
     }
 }
 
+/**
+ * @swagger
+ * /api/{businessId}/rentals:
+ *   get:
+ *     summary: Get expired rental properties
+ *     description: Retrieves a list of rental properties for a given business that have expired and are not yet settled. The business must belong to the authenticated user.
+ *     parameters:
+ *       - in: path
+ *         name: businessId
+ *         required: true
+ *         schema:
+ *           type: string
+ *           example: "business-id-123"
+ *     responses:
+ *       200:
+ *         description: A list of expired rental properties.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   id:
+ *                     type: string
+ *                     example: "rental-id-123"
+ *                   propertyId:
+ *                     type: string
+ *                     example: "property-id-123"
+ *                   tenantId:
+ *                     type: string
+ *                     example: "tenant-id-123"
+ *                   rentalCost:
+ *                     type: number
+ *                     example: 500.00
+ *                   rentalNumber:
+ *                     type: string
+ *                     example: "R123456"
+ *                   unit:
+ *                     type: string
+ *                     example: "A1"
+ *                   totalAmount:
+ *                     type: number
+ *                     example: 1500.00
+ *                   startDate:
+ *                     type: string
+ *                     format: date
+ *                     example: "2024-01-01"
+ *                   endDate:
+ *                     type: string
+ *                     format: date
+ *                     example: "2024-01-31"
+ *                   businessId:
+ *                     type: string
+ *                     example: "business-id-123"
+ *                   settled:
+ *                     type: boolean
+ *                     example: false
+ *       403:
+ *         description: User is not authenticated.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: string
+ *               example: "Unauthenticated"
+ *       400:
+ *         description: Missing or invalid business ID.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: string
+ *               example: "Business id is required"
+ *       500:
+ *         description: Internal server error.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: string
+ *               example: "Internal error"
+ */
 export async function GET(
     _req: Request,
     { params }: { params: { businessId: string } }

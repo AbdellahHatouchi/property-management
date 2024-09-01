@@ -1,36 +1,80 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Property Management App
 
-## Getting Started
+![![Banner]](https://banners.beyondco.de/Property%20Management.png?theme=light&packageManager=&packageName=https%3A%2F%2Fgithub.com%2FAbdellahHatouchi%2Fproperty-management.git&pattern=architect&style=style_1&description=&md=1&showWatermark=0&fontSize=100px&images=puzzle&widths=400&heights=400)
 
-First, run the development server:
+## Description
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+The Property Management App is a comprehensive solution designed to manage properties, tenants, and rentals efficiently. This app allows users to manage their property portfolios, tenant information, and rental agreements seamlessly. Additionally, users can generate rental contracts as PDFs. The entire system is secured with robust authentication mechanisms, including email and Google authentication.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Features
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- **Property Management**: Manage multiple properties effortlessly.
+- **Tenant Management**: Keep track of tenant information and rental history.
+- **Rental Management**: Track rental payments and generate rental contracts.
+- **PDF Generation**: Generate rental contracts in PDF format.
+- **Authentication**: Secure access using email and Google authentication.
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+## Technologies Used
 
-## Learn More
+- **Framework**: Next.js 14 (React.js)
+- **Styling**: Tailwind CSS
+- **Authentication**: Auth.js
+- **Validation**: Zod
+- **UI Components**: Radix UI
+- **State Management**: Zustand
+- **Database ORM**: Prisma
+- **Database**: PostgreSQL
+- **Email Service**: Nodemailer
+- **HTTP Client**: Axios
+- **Deployment**: Vercel
 
-To learn more about Next.js, take a look at the following resources:
+## Installation and Setup
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+To run this project locally, follow these steps:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+1. **Clone the repository**:
+   ```bash
+   git clone https://github.com/AbdellahHatouchi/property-management.git
+   cd property-management-app
 
-## Deploy on Vercel
+2. **Install dependencies:**:
+   ```bash
+   npm install
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+3. **Environment setup**:
+   - Rename `.env.example` to `.env`
+   - Fill all required environment variables in the `.env` file
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+4. **Prisma setup**:
+   - Generate Prisma client:
+     ```bash
+     npx prisma generate
+     ```
+   - Push the database schema to your PostgreSQL database:
+     ```bash
+     npx prisma db push
+     ```
+
+5. **Run the development server**:
+   ```bash
+   npm run dev
+
+6. **Access the app**: Open your browser and go to `http://localhost:3000`
+
+## Deployment
+
+The app is deployed on Vercel. You can access the live application at [https://property-management-roan-theta.vercel.app](https://property-management-roan-theta.vercel.app/).
+
+## Contributing
+
+If you'd like to contribute, please fork the repository and use a feature branch. Pull requests are welcome.
+
+## Author
+
+- **Abdellah Hatouchi**
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+

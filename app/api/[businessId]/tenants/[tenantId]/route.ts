@@ -3,6 +3,137 @@ import { UserAuth } from "@/lib/get-current-user";
 import { tenantSchema } from "@/schema";
 import { NextResponse } from "next/server";
 
+/**
+ * @swagger
+ * /api/{businessId}/tenants/{tenantId}:
+ *   patch:
+ *     summary: Update tenant information
+ *     description: Updates information for a specific tenant within a given business. The business must belong to the authenticated user, and the tenant must be associated with the specified business.
+ *     parameters:
+ *       - in: path
+ *         name: businessId
+ *         required: true
+ *         schema:
+ *           type: string
+ *           example: "business-id-123"
+ *       - in: path
+ *         name: tenantId
+ *         required: true
+ *         schema:
+ *           type: string
+ *           example: "tenant-id-123"
+ *     requestBody:
+ *       description: Updated tenant data.
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               cinOrPassport:
+ *                 type: string
+ *                 example: "C1234567"
+ *               name:
+ *                 type: string
+ *                 example: "Jane Doe"
+ *               address:
+ *                 type: string
+ *                 example: "123 Main St, Anytown, AT 12345"
+ *               dateOfBirth:
+ *                 type: string
+ *                 format: date
+ *                 example: "1990-01-01"
+ *               email:
+ *                 type: string
+ *                 format: email
+ *                 example: tenant@example.com
+ *               isTourist:
+ *                 type: boolean
+ *                 example: false
+ *               phoneNumber:
+ *                 type: string
+ *                 example: "+1234567890"
+ *             required:
+ *               - cinOrPassport
+ *               - name
+ *               - address
+ *               - dateOfBirth
+ *               - email
+ *               - isTourist
+ *               - phoneNumber
+ *     responses:
+ *       200:
+ *         description: Tenant updated successfully.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 id:
+ *                   type: string
+ *                   example: "tenant-id-123"
+ *                 cinOrPassport:
+ *                   type: string
+ *                   example: "C1234567"
+ *                 name:
+ *                   type: string
+ *                   example: "Jane Doe"
+ *                 address:
+ *                   type: string
+ *                   example: "123 Main St, Anytown, AT 12345"
+ *                 dateOfBirth:
+ *                   type: string
+ *                   format: date
+ *                   example: "1990-01-01"
+ *                 email:
+ *                   type: string
+ *                   format: email
+ *                   example: tenant@example.com
+ *                 isTourist:
+ *                   type: boolean
+ *                   example: false
+ *                 phoneNumber:
+ *                   type: string
+ *                   example: "+1234567890"
+ *                 businessId:
+ *                   type: string
+ *                   example: "business-id-123"
+ *       400:
+ *         description: Missing or invalid data.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: string
+ *               example: "Invalid Tenant Data!"
+ *       403:
+ *         description: User is not authenticated.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: string
+ *               example: "Unauthenticated"
+ *       404:
+ *         description: Tenant not found or unauthorized.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: string
+ *               example: "Not Found"
+ *       405:
+ *         description: Business ID does not belong to the authenticated user.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: string
+ *               example: "Unauthorized"
+ *       500:
+ *         description: Internal server error.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: string
+ *               example: "Internal error"
+ */
 export async function PATCH(
     req: Request,
     { params }: { params: { businessId: string; tenantId: string } }
@@ -86,6 +217,98 @@ export async function PATCH(
     }
 }
 
+/**
+ * @swagger
+ * /api/{businessId}/tenants/{tenantId}:
+ *   delete:
+ *     summary: Delete a tenant
+ *     description: Deletes a specific tenant and all associated rental properties within a given business. The business must belong to the authenticated user, and the tenant must be associated with the specified business.
+ *     parameters:
+ *       - in: path
+ *         name: businessId
+ *         required: true
+ *         schema:
+ *           type: string
+ *           example: "business-id-123"
+ *       - in: path
+ *         name: tenantId
+ *         required: true
+ *         schema:
+ *           type: string
+ *           example: "tenant-id-123"
+ *     responses:
+ *       200:
+ *         description: Tenant deleted successfully along with associated rental properties.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 id:
+ *                   type: string
+ *                   example: "tenant-id-123"
+ *                 cinOrPassport:
+ *                   type: string
+ *                   example: "C1234567"
+ *                 name:
+ *                   type: string
+ *                   example: "Jane Doe"
+ *                 address:
+ *                   type: string
+ *                   example: "123 Main St, Anytown, AT 12345"
+ *                 dateOfBirth:
+ *                   type: string
+ *                   format: date
+ *                   example: "1990-01-01"
+ *                 email:
+ *                   type: string
+ *                   format: email
+ *                   example: tenant@example.com
+ *                 isTourist:
+ *                   type: boolean
+ *                   example: false
+ *                 phoneNumber:
+ *                   type: string
+ *                   example: "+1234567890"
+ *                 businessId:
+ *                   type: string
+ *                   example: "business-id-123"
+ *       400:
+ *         description: Missing or invalid data.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: string
+ *               example: "Business id is required"
+ *       403:
+ *         description: User is not authenticated.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: string
+ *               example: "Unauthenticated"
+ *       404:
+ *         description: Tenant not found or unauthorized.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: string
+ *               example: "Not Found"
+ *       405:
+ *         description: Business ID does not belong to the authenticated user.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: string
+ *               example: "Unauthorized"
+ *       500:
+ *         description: Internal server error.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: string
+ *               example: "Internal error"
+ */
 export async function DELETE(
     _req: Request,
     { params }: { params: { businessId: string; tenantId: string } }

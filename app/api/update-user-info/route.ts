@@ -4,6 +4,114 @@ import { getUserById } from "@/data/user";
 import { auth } from "@/auth";
 import { UpdateUserInfoSchema } from "@/schema"; // Ensure this schema is correctly imported
 
+/**
+ * @swagger
+ * /api/update-user-info:
+ *   put:
+ *     summary: Update user information
+ *     description: Updates the information of the authenticated user.
+ *     requestBody:
+ *       description: User information to be updated.
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 format: email
+ *                 example: user@example.com
+ *               phoneNumber:
+ *                 type: string
+ *                 example: "+1234567890"
+ *               name:
+ *                 type: string
+ *                 example: "John Doe"
+ *             required:
+ *               - email
+ *               - phoneNumber
+ *               - name
+ *     responses:
+ *       200:
+ *         description: User information updated successfully.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: ""
+ *                 success:
+ *                   type: string
+ *                   example: "User information updated successfully"
+ *       400:
+ *         description: Invalid fields in the request.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: "Invalid fields!"
+ *                 success:
+ *                   type: string
+ *                   example: ""
+ *       401:
+ *         description: Unauthorized access or invalid user.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: "Unauthorized"
+ *                 success:
+ *                   type: string
+ *                   example: ""
+ *       404:
+ *         description: User not found.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: "User not found"
+ *                 success:
+ *                   type: string
+ *                   example: ""
+ *       409:
+ *         description: Email already exists.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: "Email already exists"
+ *                 success:
+ *                   type: string
+ *                   example: ""
+ *       500:
+ *         description: Internal server error.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: "Something went wrong!"
+ *                 success:
+ *                   type: string
+ *                   example: ""
+ */
 export async function PUT(req: NextRequest) {
     try {
         const body = await req.json();

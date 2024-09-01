@@ -89,6 +89,12 @@ export const RentalForm: React.FC<RentalFormProps> = ({
     }
   };
 
+  const isDisabledDate = (date: Date) => {
+    const today = new Date();
+    // Reset the time portion of today's date to 00:00:00
+    today.setHours(0, 0, 0, 0);
+    return date < today; // Disable dates strictly before today
+  };
   
 
   return (
@@ -472,6 +478,7 @@ export const RentalForm: React.FC<RentalFormProps> = ({
                         <Calendar
                           initialFocus
                           mode="range"
+                          disabled={(date) => isDisabledDate(date)}
                           defaultMonth={field.value?.from}
                           selected={field.value}
                           onSelect={field.onChange}
