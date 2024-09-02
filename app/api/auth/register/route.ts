@@ -3,6 +3,9 @@ import { RegisterSchema } from "@/schema";
 import bcrypt from "bcryptjs";
 import { getUserByEmail } from "@/data/user";
 import { db } from "@/lib/db";
+import { signIn } from "@/auth";
+import { DEFAUIT_LOGIN_REDIRECT } from "@/routes";
+import { sendVerificationOTP } from "@/lib/send-verification-otp";
 
 /**
  * @swagger
@@ -121,6 +124,15 @@ export async function POST(req: NextRequest) {
                 name,
                 phoneNumber: "",
             },
+        });
+        await sendVerificationOTP(user.email)
+
+        // Attempt to sign in the user
+        await signIn("credentials", {
+            email,
+            password,
+            redirect: false,
+            // redirectTo: DEFAUIT_LOGIN_REDIRECT,
         });
 
         return NextResponse.json(

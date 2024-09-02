@@ -33,14 +33,22 @@ declare module "next-auth" {
 }
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
-    pages:{
-        signIn:'/sign-in',
+    pages: {
+        signIn: "/sign-in",
     },
     callbacks: {
-        // async signIn({ user }) {
+        // we don't need that for now because we need to login without the verification email aslo
+        // async signIn({ user, account }) {
+
+        //     //Allow Oauth without email verification
+        //     if (account?.provider !== "credentials") return true;
+
         //     if (!user.id) return false;
+
         //     const existingUser = await getUserById(user.id);
+        //     // Prevent sign in without email verification
         //     if (!existingUser || !existingUser.emailVerified) return false;
+
         //     return true;
         // },
         async session({ session, token }) {
@@ -69,7 +77,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     session: {
         strategy: "jwt",
         maxAge: 24 * 60 * 60, // 1 day in seconds
-        updateAge: 24 * 60 * 60 // 1 day in seconds
+        updateAge: 24 * 60 * 60, // 1 day in seconds
     },
     jwt: {
         maxAge: 24 * 60 * 60, // 1 day in seconds

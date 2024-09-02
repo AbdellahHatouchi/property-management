@@ -25,20 +25,25 @@ export const RegisterSchema = z.object({
 export const UpdateUserInfoSchema = z.object({
     name: z
         .string()
-        .min(3, "Le nom doit comporter au moins 3 caractères")
-        .optional(),
-    email: z.string().email("Format d'e-mail invalide").optional(),
+        .min(3, "name must be more than 3 characters long"),
+    email: z.string().email("Email format invalide"),
     phoneNumber: z.string().optional(),
 });
 
 export const UpdatePasswordSchema = z.object({
     password: z
         .string()
-        .min(6, "Le mot de passe doit comporter plus de 6 caractères"),
+        .min(6, "Password must be more than 6 characters long"),
     confirmation: z
         .string()
-        .min(6, "Le mot de passe doit comporter plus de 6 caractères"),
+        .min(6, "Password must be more than 6 characters long"),
 });
+
+export const VerificationSchema = z.object({
+    OTPVerify: z.string().length(6,{
+      message: 'Please enter the valide OTP code'
+    }),
+  });
 
 const MoroccanCINRegex = /^[A-Za-z]{2}\d{1,8}$/;
 

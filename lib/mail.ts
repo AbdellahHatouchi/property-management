@@ -1,27 +1,13 @@
-import { render } from "@react-email/render";
 import nodemailer from "nodemailer";
-import { Email } from "@/components/mail/rental-expired-template";
 
 export async function sendMail({
     to,
     subject,
-    rentals,
-    username,
+    emailContent
 }: {
     to: string;
     subject: string;
-    username: string;
-    rentals: {
-        settled: boolean;
-        datePaid: string;
-        businessId: string;
-        rentalNumber: string;
-        startDate: string;
-        endDate: string;
-        id: string;
-        unit: string;
-        totalAmount: string;
-    }[];
+    emailContent: string;
 }) {
     const { SMTP_EMAIL, SMTP_PASSWORD } = process.env;
 
@@ -40,23 +26,12 @@ export async function sendMail({
         return;
     }
 
-    const emailHtml = await render(
-        Email({
-            rentals,
-            supportEmail: "rent-master.support.com",
-            username,
-        }),
-        {
-            pretty: true,
-        }
-    );
-
     try {
         const sendResult = await transport.sendMail({
             from: SMTP_EMAIL,
             to,
             subject,
-            html: emailHtml,
+            html: emailContent,
         });
         console.log(sendResult);
     } catch (error) {

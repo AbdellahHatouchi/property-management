@@ -10,17 +10,17 @@ import { Button } from '@/components/ui/button';
 import { useState, useTransition } from 'react';
 import { Eye, EyeOff } from 'lucide-react';
 import { CardWrapper } from '@/components/auth/card-wrapper';
-import { FormError } from '../_components/form-error';
-import { FormSuccess } from '../_components/form-success';
 import { BackButton } from '@/components/auth/back-button';
 import axios, { AxiosError } from 'axios';
 import { toast } from 'sonner';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { FormError } from '@/components/auth/form-error';
+import { FormSuccess } from '@/components/auth/form-success';
+import { DEFAUIT_LOGIN_REDIRECT } from '@/routes';
 
 export const LoginForm = () => {
   const router = useRouter()
   const searchParams = useSearchParams()
-  const callbackUrl = searchParams.get('callbackUrl');
   const [isSeePwd, setIsSeePwd] = useState<boolean>(false);
   const [error, setError] = useState<string | undefined>('');
   const [success, setSuccess] = useState<string | undefined>('');
@@ -32,11 +32,12 @@ export const LoginForm = () => {
       password: '',
     }
   })
+  const callbackUrl = searchParams.get('callbackUrl') || DEFAUIT_LOGIN_REDIRECT;
   const IconPwd = isSeePwd ? Eye : EyeOff;
   const handleChangeSeePwd = () => {
     setIsSeePwd((prev) => !prev);
   }
-  
+
   const onSubmit = (values: z.infer<typeof LoginSchema>) => {
     setError('')
     setSuccess('')
@@ -46,12 +47,17 @@ export const LoginForm = () => {
         const { data } = res;
         setError(data?.error)
         setSuccess(data?.success)
-        if (data?.success){
-          if (callbackUrl){
-            router.push(callbackUrl)
-          }else {
-            router.refresh()
-          }
+        if (data?.success) {
+          // if (callbackUrl){
+          //   router.replace(callbackUrl)
+          // }else {
+          //   router.refresh()
+          // }
+          const redirectUrl = !data.isEmailVerified
+            ? `/verify-email?callbackUrl=${encodeURIComponent(callbackUrl)}`
+            : callbackUrl;
+
+          router.replace(redirectUrl)
         }
       } catch (error) {
         const { error: msg } = (error as AxiosError).response?.data as { error: string }

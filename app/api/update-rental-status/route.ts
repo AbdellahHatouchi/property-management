@@ -1,7 +1,9 @@
+import Email from "@/components/mail/rental-expired-template";
 import { db } from "@/lib/db";
 import { sendMail } from "@/lib/mail";
 import { formattedNumberToMAD } from "@/lib/utils";
 import { Business, RentalProperty, Tenant, User } from "@prisma/client";
+import { render } from "@react-email/render";
 import { format } from "date-fns";
 /**
  * @swagger
@@ -73,7 +75,7 @@ export async function GET() {
             }
         });
 
-        const emailPromises = expiredRentals.map((rental) => {
+        const emailPromises = expiredRentals.map(async (rental) => {
             const rentalsEmailData = {
                 settled: rental.settled,
                 datePaid: rental.datePaid
@@ -88,24 +90,44 @@ export async function GET() {
                 totalAmount: formattedNumberToMAD(rental.totalAmount),
             };
 
+            const tenantEmailContent = await render(
+                Email({
+                    rentals: [rentalsEmailData],
+                    supportEmail: "rent-master.support.com",
+                    username: rental.tenant.name || "Valued Customer", // The tenant's name or a fallback
+                }),
+                {
+                    pretty: true,
+                }
+            );
+            const userEmailContent = await render(
+                Email({
+                    rentals: [rentalsEmailData],
+                    supportEmail: "rent-master.support.com",
+                    username: rental.tenant.name || "Valued Customer", // The tenant's name or a fallback
+                }),
+                {
+                    pretty: true,
+                }
+            );
+
             const tenantEmailData = {
                 to: rental.tenant.email, // The tenant's email address
-                rentals: [rentalsEmailData],
                 subject: "Expired Rental Property Notification",
-                username: rental.tenant.name || "Valued Customer", // The tenant's name or a fallback
             };
 
             const userEmailData = {
                 to: rental.business.User.email, // The user's email address
-                rentals: [rentalsEmailData],
                 subject: "Expired Rental Property Notification",
-                username: rental.business.User.name || "Business Owner", // The user's name or a fallback
             };
 
             // Send email to both the tenant and the user
             return Promise.all([
-                sendMail(tenantEmailData),
-                sendMail(userEmailData),
+                sendMail({
+                    ...tenantEmailData,
+                    emailContent: tenantEmailContent,
+                }),
+                sendMail({ ...userEmailData, emailContent: userEmailContent }),
             ]);
         });
 

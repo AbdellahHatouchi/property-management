@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 
 import { BusinessModal } from "@/components/modals/business-modal";
+import { VerifyModal } from "@/components/modals/verify-email-modal";
 
 export const ModalProvider = () => {
   const [isMounted, setIsMounted] = useState(false);
@@ -18,6 +19,7 @@ export const ModalProvider = () => {
   return (
     <>
       <BusinessModal />
+      <VerifyModal />
     </>
   );
 }

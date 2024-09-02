@@ -3,6 +3,8 @@ import { redirect } from 'next/navigation';
 import Navbar from '@/components/navbar'
 import { UserAuth } from '@/lib/get-current-user';
 import { db } from '@/lib/db';
+import { getUserById } from '@/data/user';
+import { signOut } from 'next-auth/react';
 
 export default async function DashboardLayout({
   children,
@@ -15,6 +17,19 @@ export default async function DashboardLayout({
 
   if (!user || !user.id) {
     redirect('/sign-in');
+  }
+
+  const userData = await getUserById(user.id);
+
+  if (!userData) {
+    signOut({
+      callbackUrl: '/sign-in'
+    })
+    return;
+  };
+
+  if (!userData.emailVerified){
+    redirect('/verify-email')
   }
 
   const business = await db.business.findFirst({

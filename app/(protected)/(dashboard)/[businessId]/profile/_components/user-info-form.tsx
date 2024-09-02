@@ -36,12 +36,17 @@ const UserInfoForm = ({ initialData }: UserFormProps) => {
   });
 
   const onSubmit = (values: z.infer<typeof UpdateUserInfoSchema>) => {
-    startTransition(async() => {
+    startTransition(async () => {
       try {
-        const response = await axios.put(`/api/update-user-info`, {values});
+        const response = await axios.put(`/api/update-user-info`, values);
         const data = response.data
+        console.log(response.data);
+
         if (response.status === 200) {
-          toast.success(`User Updated Successfully`);
+          toast.success(data.success || `User Updated Successfully`);
+          if (data.isEmailUpdate) {
+            router.replace('/verify-email')
+          }
           router.refresh();
         } else {
           if (data.error === "Unauthorized") {

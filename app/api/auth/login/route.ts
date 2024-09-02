@@ -3,6 +3,8 @@ import { LoginSchema } from "@/schema";
 import { signIn } from "@/auth";
 import { DEFAUIT_LOGIN_REDIRECT } from "@/routes";
 import { AuthError } from "next-auth";
+import { getUserByEmail } from "@/data/user";
+import { sendVerificationOTP } from "@/lib/send-verification-otp";
 
 /**
  * @swagger
@@ -100,12 +102,24 @@ export async function POST(req: NextRequest) {
         await signIn("credentials", {
             email,
             password,
-            redirect:false
+            redirect: false,
             // redirectTo: DEFAUIT_LOGIN_REDIRECT,
         });
+        // for OTP Code
+        const existingUser = await getUserByEmail(email);
+
+        if (!existingUser || !existingUser.email || !existingUser.password) {
+            return NextResponse.json(
+                { error: "Email does not exist!", success: "" },
+                { status: 400 }
+            );
+        }
+        if (!existingUser.emailVerified) {
+           await sendVerificationOTP(existingUser.email)
+        }
 
         return NextResponse.json(
-            { error: "", success: "Login successful" },
+            { error: "", success: "Login successfully", isEmailVerified: !!existingUser.emailVerified},
             { status: 200 }
         );
     } catch (error) {

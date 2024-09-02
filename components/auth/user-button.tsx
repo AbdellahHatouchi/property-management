@@ -49,7 +49,7 @@ export const UserButton = async () => {
           <AcountButton>
             <div className="flex items-center">
               <Settings className="w-4 h-4 mr-2" />
-              <span>Gérer son compte</span>
+              <span>Mange my account</span>
             </div>
           </AcountButton>
         </DropdownMenuItem>

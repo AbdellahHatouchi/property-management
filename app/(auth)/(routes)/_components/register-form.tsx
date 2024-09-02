@@ -10,12 +10,14 @@ import { Button } from '@/components/ui/button';
 import { useState, useTransition } from 'react';
 import { Eye, EyeOff } from 'lucide-react';
 import { CardWrapper } from '@/components/auth/card-wrapper';
-import { FormError } from '../_components/form-error';
-import { FormSuccess } from '../_components/form-success';
 import { toast } from 'sonner';
 import axios, { AxiosError } from 'axios';
+import { FormError } from '@/components/auth/form-error';
+import { FormSuccess } from '@/components/auth/form-success';
+import { useRouter } from 'next/navigation';
 
 export const RegisterForm = () => {
+  const router = useRouter()
   const [isSeePwd, setIsSeePwd] = useState<boolean>(false);
   const [error, setError] = useState<string | undefined>('');
   const [success, setSuccess] = useState<string | undefined>('');
@@ -43,6 +45,9 @@ export const RegisterForm = () => {
         console.log(data)
         setError(data?.error)
         setSuccess(data?.success)
+        if (data?.success){
+          router.replace('/verify-email')
+        }
       } catch (error) {
         const { error: msg } = (error as AxiosError).response?.data as { error: string }
           || { error: "Something went wrong." }
