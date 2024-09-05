@@ -1,6 +1,8 @@
 // this list of route don't require authentication
 
-export const publicRoutes = ['/p']
+export const publicRoutes = [
+  '/api/update-rental-status'
+]
 
 // array of routes used authentication
 

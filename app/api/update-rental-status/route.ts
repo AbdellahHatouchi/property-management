@@ -5,6 +5,7 @@ import { formattedNumberToMAD } from "@/lib/utils";
 import { Business, RentalProperty, Tenant, User } from "@prisma/client";
 import { render } from "@react-email/render";
 import { format } from "date-fns";
+import { NextRequest } from "next/server";
 /**
  * @swagger
  * /api/update-rental-status:
@@ -33,8 +34,21 @@ import { format } from "date-fns";
  *                   type: string
  *                   example: "Internal server error"
  */
-export async function GET() {
+export async function GET(req:NextRequest) {
     try {
+        const url = new URL(req.url);
+        const apiSecretKey = process.env.API_SECRET_KEY;
+
+        // Get the API key from the query string
+        const requestApiKey = url.searchParams.get("apiKey");
+
+        // Check if the API key matches the secret
+        if (!requestApiKey || requestApiKey !== apiSecretKey) {
+            return new Response(JSON.stringify({ message: "Unauthorized" }), {
+                status: 401,
+                headers: { "Content-Type": "application/json" },
+            });
+        }
         let expiredRentals: (RentalProperty & {
             tenant: Tenant;
             business: Business & {

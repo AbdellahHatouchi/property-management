@@ -1,7 +1,7 @@
 {
   "crons": [
     {
-      "path": "/api/update-rental-status",
+      "path": "/api/update-rental-status?apiKey=rNOd31q3wWf262kbvrLtphWSseqKXKsb07hOMi/aYlw=",
       "schedule": "0 7 * * *"
     }
   ]
