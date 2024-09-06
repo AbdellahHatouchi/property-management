@@ -11,18 +11,17 @@ import { FormSuccess } from '@/components/auth/form-success';
 import { useState, useTransition } from 'react';
 import { InputOTP, InputOTPGroup, InputOTPSeparator, InputOTPSlot } from '@/components/ui/input-otp';
 import { VerifyEmail } from '@/actions/verify-email';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
 import { DEFAUIT_LOGIN_REDIRECT } from '@/routes';
 import { TokenType } from '@prisma/client';
 import { useVerifyEmailModal } from '@/hooks/use-verfiy-email-modal';
 import { Modal } from '@/components/ui/modal';
-import { signOut, useSession } from 'next-auth/react';
+import { signOut } from 'next-auth/react';
 import Countdown, { CountdownRenderProps } from 'react-countdown';
 import { resendEmail } from '@/actions/resend-email';
 import { toast } from 'sonner';
 
 export const VerifyModal = () => {
-  const router = useRouter();
   const searchParams = useSearchParams();
   const VerifyEmailModal = useVerifyEmailModal();
   const [error, setError] = useState<string | undefined>('');
@@ -54,9 +53,7 @@ export const VerifyModal = () => {
           setError(data.error)
           setSuccess(data.success)
           if (data.success) {
-            VerifyEmailModal.onClose()
-            
-            router.replace(callbackUrl || DEFAUIT_LOGIN_REDIRECT)
+            window.location.assign(callbackUrl || DEFAUIT_LOGIN_REDIRECT);
           } else if (data.status === 403) {
             onClick()
           }

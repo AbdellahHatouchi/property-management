@@ -57,7 +57,7 @@ export async function GET(req:NextRequest) {
         })[] = [];
         // Start a transaction
         await db.$transaction(async (tx) => {
-            // Fetch rentals that have expired but are not settled
+            // Fetch rentals that have expired
             expiredRentals = await tx.rentalProperty.findMany({
                 where: {
                     endDate: { lte: new Date() },
