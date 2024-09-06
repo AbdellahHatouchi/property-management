@@ -23,6 +23,8 @@ export const getUserById = async (id: string) => {
 };
 export const verifiedUserById = async (id: string) => {
     try {
+        console.log('id:',id);
+        
         const user = await db.user.update({
             where: { id },
             data:{
@@ -31,6 +33,8 @@ export const verifiedUserById = async (id: string) => {
         });
         return user;
     } catch (error) {
+        console.log(error);
+        
         return null;
     }
 };

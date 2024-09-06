@@ -37,18 +37,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         signIn: "/sign-in",
     },
     callbacks: {
-        // we don't need that for now because we need to login without the verification email aslo
-        async signIn({ user, account, profile }) {
-
-            //Allow Oauth without email verification
-            if (account?.provider === "google" && profile?.email_verified) {
-                if (!user.id) return false;
-                const existingUser = await verifiedUserById(user.id);
-                if (!existingUser || !existingUser.emailVerified) return false;
-            };
-
-            return true;
-        },
         async session({ session, token }) {
             if (token.sub && session.user) {
                 session.user.id = token.sub;
@@ -59,7 +47,15 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             }
             return session;
         },
-        async jwt({ token }) {
+        async jwt({ token, trigger, user, profile,account }) {
+            if (trigger === 'signUp' && account?.provider === "google" && profile?.email_verified){
+                if (user.id){
+                    console.log(user.id);
+                    
+                    const existingUser = await verifiedUserById(user.id);
+                }
+            }
+
             if (!token.sub) return token;
 
             const existingUser = await getUserById(token.sub);
