@@ -1,7 +1,7 @@
 import NextAuth from "next-auth";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import authConfig from "./auth.config";
-import { getUserById } from "./data/user";
+import { getUserById, verifiedUserById } from "./data/user";
 import { DefaultSession } from "next-auth";
 import { db } from "./lib/db";
 // The `JWT` interface can be found in the `next-auth/jwt` submodule
@@ -38,19 +38,17 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     },
     callbacks: {
         // we don't need that for now because we need to login without the verification email aslo
-        // async signIn({ user, account }) {
+        async signIn({ user, account, profile }) {
 
-        //     //Allow Oauth without email verification
-        //     if (account?.provider !== "credentials") return true;
+            //Allow Oauth without email verification
+            if (account?.provider === "google" && profile?.email_verified) {
+                if (!user.id) return false;
+                const existingUser = await verifiedUserById(user.id);
+                if (!existingUser || !existingUser.emailVerified) return false;
+            };
 
-        //     if (!user.id) return false;
-
-        //     const existingUser = await getUserById(user.id);
-        //     // Prevent sign in without email verification
-        //     if (!existingUser || !existingUser.emailVerified) return false;
-
-        //     return true;
-        // },
+            return true;
+        },
         async session({ session, token }) {
             if (token.sub && session.user) {
                 session.user.id = token.sub;

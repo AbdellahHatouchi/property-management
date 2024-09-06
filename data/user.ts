@@ -21,4 +21,17 @@ export const getUserById = async (id: string) => {
         return null;
     }
 };
+export const verifiedUserById = async (id: string) => {
+    try {
+        const user = await db.user.update({
+            where: { id },
+            data:{
+                emailVerified: new Date(),
+            }
+        });
+        return user;
+    } catch (error) {
+        return null;
+    }
+};
 
