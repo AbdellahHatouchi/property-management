@@ -1,8 +1,11 @@
 import { db } from "./db";
 
-export const getRentalNumber = async() => {
+export const getRentalNumber = async (businessId: string) => {
     // Get the last rental property entry from the database
     const lastRental = await db.rentalProperty.findFirst({
+        where: {
+            businessId,
+        },
         orderBy: {
             rentalNumber: "desc",
         },

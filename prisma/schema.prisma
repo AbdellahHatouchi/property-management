@@ -84,7 +84,7 @@ model Tenant {
   cinOrPassport    String           @unique
   isTourist        Boolean          @default(false)
   name             String
-  email            String           @unique
+  email            String         
   phoneNumber      String
   address          String
   dateOfBirth      DateTime
@@ -93,6 +93,8 @@ model Tenant {
   business         Business         @relation(fields: [businessId], references: [id])
   createdAt        DateTime         @default(now())
   updatedAt        DateTime         @updatedAt
+
+  @@unique([email, businessId])
 }
 
 model Property {
@@ -132,7 +134,7 @@ enum PropertyType {
 
 model RentalProperty {
   id           String   @id @default(uuid())
-  rentalNumber String   @unique
+  rentalNumber String  
   propertyId   String
   unit         String // Specific unit within the property
   rentalCost   Float
@@ -150,4 +152,6 @@ model RentalProperty {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@unique([rentalNumber,businessId])
 }

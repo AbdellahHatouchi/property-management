@@ -7,7 +7,7 @@ const RentalPage = async ({
 }: {
   params: { rentalId: string, businessId: string }
 }) => {
-  const rentalNumber = await getRentalNumber()
+  const rentalNumber = await getRentalNumber(params.businessId)
   const properties = await db.property.findMany({
     where: {
       isAvailable: true,
