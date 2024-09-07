@@ -31,10 +31,10 @@ const Notification = () => {
         try {
           const res = await axios.get(`/api/${params.businessId}/rentals`);
           setData(res.data)
-          toast.success('Get expaired rental successfully.');
+          // toast.success('Get expaired rental successfully.');
         } catch (error: any) {
           const msg = (error as AxiosError).response?.data as string;
-          toast.error(msg || 'Something went wrong!');
+          toast.error(msg || 'Something went wrong at notification!');
         }
       })
     }
