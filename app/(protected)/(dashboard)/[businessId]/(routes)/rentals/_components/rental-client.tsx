@@ -11,14 +11,12 @@ import { facetedFilter } from "@/constants";
 import { CardReportList, CardReportProps } from "@/components/crad-report";
 
 interface RentalsClientProps {
-  data: RentalColumn[];
   totalCashIn: number
   totalCashOut: number
   costAverage: number
 }
 
 const RentalsClient = ({
-  data,
   totalCashIn,
   totalCashOut,
   costAverage
@@ -62,7 +60,7 @@ const RentalsClient = ({
   return (
     <>
       <div className="flex max-md:flex-col gap-3 max-md:px-3 md:items-center justify-between">
-        <Heading title={`Rentals (${data.length})`} description="Manage rentals property for your business" />
+        <Heading title={`Rentals`} description="Manage rentals property for your business" />
         <Button onClick={() => router.push(`/${params.businessId}/rentals/new`)}>
           <Plus className="mr-2 h-4 w-4" /> Add New
         </Button>
@@ -81,7 +79,7 @@ const RentalsClient = ({
           createdAt: false,
         }}
         columns={columns}
-        data={data}
+        APIPath={`/api/${params.businessId}/rentals`}
       />
     </>
   )

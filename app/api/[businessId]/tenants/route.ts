@@ -1,6 +1,7 @@
 import { db } from "@/lib/db";
 import { UserAuth } from "@/lib/get-current-user";
 import { tenantSchema } from "@/schema";
+import { format } from "date-fns";
 import { NextResponse } from "next/server";
 
 /**
@@ -262,6 +263,7 @@ export async function GET(
     { params }: { params: { businessId: string } }
 ) {
     try {
+        const { searchParams } = new URL(req.url);
         const user = await UserAuth();
 
         if (!user || !user.id) {
@@ -271,11 +273,47 @@ export async function GET(
         if (!params.businessId) {
             return new NextResponse("Business id is required", { status: 400 });
         }
+        const pageSize = parseInt(searchParams.get("pageSize") || "5"); // Default to 5 if not provided
+        const pageIndex = parseInt(searchParams.get("pageIndex") || "0"); // Default to 0 if not provided
 
+        // Calculate skip and take (limit) for pagination
+        const skip = pageIndex * pageSize;
+        const take = pageSize;
+
+        // Fetch tenants data with pagination
         const tenants = await db.tenant.findMany({
             where: {
                 businessId: params.businessId,
             },
+            orderBy: {
+                createdAt: "desc",
+            },
+            skip, // Skips records based on pageIndex
+            take, // Limits the number of records per page (pageSize)
+        });
+
+        // Format the data as required
+        const formattedData = tenants.map((tenant) => ({
+            id: tenant.id,
+            name: tenant.name,
+            email: tenant.email,
+            cinOrPassport: tenant.cinOrPassport,
+            phoneNumber: tenant.phoneNumber,
+            isTourist: tenant.isTourist,
+            createdAt: format(new Date(tenant.createdAt), "MMMM do, yyyy"),
+        })) as TenantColumn[];
+
+        // Optionally: Get the total count of tenants for this businessId
+        const totalTenants = await db.tenant.count({
+            where: { businessId: params.businessId },
+        });
+
+        // Return the paginated and formatted data along with total count
+        return NextResponse.json({
+            data: formattedData,
+            total: totalTenants, // For frontend to calculate total pages
+            pageSize,
+            pageIndex,
         });
 
         return NextResponse.json(tenants);
@@ -284,3 +322,13 @@ export async function GET(
         return new NextResponse("Internal error", { status: 500 });
     }
 }
+
+type TenantColumn = {
+    id: string;
+    name: string;
+    email: string;
+    cinOrPassport: string;
+    phoneNumber: string;
+    isTourist: boolean;
+    createdAt: string;
+};

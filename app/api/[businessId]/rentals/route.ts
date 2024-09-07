@@ -2,6 +2,7 @@ import { db } from "@/lib/db";
 import { UserAuth } from "@/lib/get-current-user";
 import { calculateAmount } from "@/lib/utils";
 import { RentalPropertySchema } from "@/schema";
+import { format } from "date-fns";
 import { NextResponse } from "next/server";
 
 /**
@@ -45,9 +46,9 @@ import { NextResponse } from "next/server";
  *                 type: string
  *                 enum: [Daily, Monthly]
  *                 example: "Monthly"
- *               tenantId:
+ *               rentalPropertyId:
  *                 type: string
- *                 example: "tenant-id-123"
+ *                 example: "rentalProperty-id-123"
  *               unit:
  *                 type: string
  *                 example: "A1"
@@ -56,7 +57,7 @@ import { NextResponse } from "next/server";
  *               - rentalDateRange
  *               - rentalNumber
  *               - rentalType
- *               - tenantId
+ *               - rentalPropertyId
  *               - unit
  *     responses:
  *       200:
@@ -72,9 +73,9 @@ import { NextResponse } from "next/server";
  *                 propertyId:
  *                   type: string
  *                   example: "property-id-123"
- *                 tenantId:
+ *                 rentalPropertyId:
  *                   type: string
- *                   example: "tenant-id-123"
+ *                   example: "rentalProperty-id-123"
  *                 rentalCost:
  *                   type: number
  *                   example: 500.00
@@ -113,7 +114,7 @@ import { NextResponse } from "next/server";
  *               type: string
  *               example: "Unauthenticated"
  *       404:
- *         description: Property or tenant not found or unit not available.
+ *         description: Property or rentalProperty not found or unit not available.
  *         content:
  *           application/json:
  *             schema:
@@ -199,14 +200,14 @@ export async function POST(
             return new NextResponse("Unit Not Available", { status: 400 });
         }
 
-        const tenantById = await db.tenant.findUnique({
+        const getTenant = await db.tenant.findUnique({
             where: {
                 id: tenantId,
                 businessId: params.businessId,
             },
         });
 
-        if (!tenantById) {
+        if (!getTenant) {
             return new NextResponse("Tenant Not Found", { status: 400 });
         }
 
@@ -280,8 +281,8 @@ export async function POST(
  * @swagger
  * /api/{businessId}/rentals:
  *   get:
- *     summary: Get expired rental properties
- *     description: Retrieves a list of rental properties for a given business that have expired and are not yet settled. The business must belong to the authenticated user.
+ *     summary: Retrieve rentals for a business
+ *     description: Fetches a list of rentals associated with a specified business. The business must belong to the authenticated user.
  *     parameters:
  *       - in: path
  *         name: businessId
@@ -291,7 +292,7 @@ export async function POST(
  *           example: "business-id-123"
  *     responses:
  *       200:
- *         description: A list of expired rental properties.
+ *         description: List of rentals for the specified business.
  *         content:
  *           application/json:
  *             schema:
@@ -301,46 +302,33 @@ export async function POST(
  *                 properties:
  *                   id:
  *                     type: string
- *                     example: "rental-id-123"
- *                   propertyId:
+ *                     example: "rentalProperty-id-123"
+ *                   cinOrPassport:
  *                     type: string
- *                     example: "property-id-123"
- *                   tenantId:
+ *                     example: "C1234567"
+ *                   name:
  *                     type: string
- *                     example: "tenant-id-123"
- *                   rentalCost:
- *                     type: number
- *                     example: 500.00
- *                   rentalNumber:
+ *                     example: "Jane Doe"
+ *                   address:
  *                     type: string
- *                     example: "R123456"
- *                   unit:
- *                     type: string
- *                     example: "A1"
- *                   totalAmount:
- *                     type: number
- *                     example: 1500.00
- *                   startDate:
+ *                     example: "123 Main St, Anytown, AT 12345"
+ *                   dateOfBirth:
  *                     type: string
  *                     format: date
- *                     example: "2024-01-01"
- *                   endDate:
+ *                     example: "1990-01-01"
+ *                   email:
  *                     type: string
- *                     format: date
- *                     example: "2024-01-31"
+ *                     format: email
+ *                     example: rentalProperty@example.com
+ *                   isTourist:
+ *                     type: boolean
+ *                     example: false
+ *                   phoneNumber:
+ *                     type: string
+ *                     example: "+1234567890"
  *                   businessId:
  *                     type: string
  *                     example: "business-id-123"
- *                   settled:
- *                     type: boolean
- *                     example: false
- *       403:
- *         description: User is not authenticated.
- *         content:
- *           application/json:
- *             schema:
- *               type: string
- *               example: "Unauthenticated"
  *       400:
  *         description: Missing or invalid business ID.
  *         content:
@@ -348,6 +336,13 @@ export async function POST(
  *             schema:
  *               type: string
  *               example: "Business id is required"
+ *       403:
+ *         description: User is not authenticated.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: string
+ *               example: "Unauthenticated"
  *       500:
  *         description: Internal server error.
  *         content:
@@ -357,10 +352,11 @@ export async function POST(
  *               example: "Internal error"
  */
 export async function GET(
-    _req: Request,
+    req: Request,
     { params }: { params: { businessId: string } }
 ) {
     try {
+        const { searchParams } = new URL(req.url);
         const user = await UserAuth();
 
         if (!user || !user.id) {
@@ -370,18 +366,68 @@ export async function GET(
         if (!params.businessId) {
             return new NextResponse("Business id is required", { status: 400 });
         }
+        const pageSize = parseInt(searchParams.get("pageSize") || "5"); // Default to 5 if not provided
+        const pageIndex = parseInt(searchParams.get("pageIndex") || "0"); // Default to 0 if not provided
 
-        const expiredRentals = await db.rentalProperty.findMany({
+        // Calculate skip and take (limit) for pagination
+        const skip = pageIndex * pageSize;
+        const take = pageSize;
+
+        // Fetch rentals data with pagination
+        const rentals = await db.rentalProperty.findMany({
             where: {
                 businessId: params.businessId,
-                endDate: { lte: new Date() },
-                settled: false,
             },
+            include: {
+                property: {
+                    select: {
+                        name: true,
+                    },
+                },
+                tenant: {
+                    select: {
+                        name: true,
+                        cinOrPassport: true,
+                    },
+                },
+            },
+            orderBy: {
+                createdAt: "desc",
+            },
+            skip, // Skips records based on pageIndex
+            take, // Limits the number of records per page (pageSize)
         });
 
-        return NextResponse.json(expiredRentals);
+        // Format the data as required
+        const formattedData = rentals.map((rental) => ({
+            id: rental.id,
+            rentalNumber: rental.rentalNumber,
+            unit: rental.unit,
+            tenantName: rental.tenant.name,
+            settled: rental.settled,
+            tenantCinOrPassport: rental.tenant.cinOrPassport,
+            propertyName: rental.property.name,
+            totalAmount: rental.totalAmount,
+            startDate: format(new Date(rental.startDate), "MMMM do, yyyy"),
+            endDate: format(new Date(rental.endDate), "MMMM do, yyyy"),
+            createdAt: format(new Date(rental.createdAt), "MMMM do, yyyy"),
+        }));
+
+        // Optionally: Get the total count of rentals for this businessId
+        const totalTenants = await db.rentalProperty.count({
+            where: { businessId: params.businessId },
+        });
+
+        // Return the paginated and formatted data along with total count
+        return NextResponse.json({
+            data: formattedData,
+            total: totalTenants, // For frontend to calculate total pages
+            pageSize,
+            pageIndex,
+        });
+
     } catch (error) {
-        console.log("[PROPERTY_GET]", error);
+        console.log("[RENTALS_GET]", error);
         return new NextResponse("Internal error", { status: 500 });
     }
 }

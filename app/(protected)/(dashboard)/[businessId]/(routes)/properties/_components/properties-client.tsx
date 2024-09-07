@@ -13,7 +13,7 @@ interface PropertiesClientProps {
   data: PropertyColumn[];
 }
 
-const PropertiesClient = ({ data }: PropertiesClientProps) => {
+const PropertiesClient = () => {
   const params = useParams();
   const router = useRouter();
 
@@ -34,7 +34,7 @@ const PropertiesClient = ({ data }: PropertiesClientProps) => {
   return (
     <>
       <div className="flex max-md:flex-col gap-3 max-md:px-3 md:items-center justify-between">
-        <Heading title={`Properties (${data.length})`} description="Manage properties for your business" />
+        <Heading title={`Properties`} description="Manage properties for your business" />
         <Button onClick={() => router.push(`/${params.businessId}/properties/new`)}>
           <Plus className="mr-2 h-4 w-4" /> Add New
         </Button>
@@ -46,7 +46,7 @@ const PropertiesClient = ({ data }: PropertiesClientProps) => {
           searchKeys
         }}
         columns={columns}
-        data={data}
+        APIPath={`/api/${params.businessId}/properties`}
       />
     </>
   )

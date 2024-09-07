@@ -31,28 +31,32 @@ import { DataTableToolbar } from "./data-table-toolbar"
 import { facetedFilter } from "@/constants"
 import { AlertModal } from "../modals/alert-modal"
 import { useDeleteManyModal } from "@/hooks/use-delete-many-modal"
+import { usePagination } from "@/hooks/use-pagination"
+import { FormError } from "../auth/form-error"
+import { Spinner } from "../ui/spinner"
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
-  data: TData[]
   toolbar: {
     searchKeys: { accessorKey: string; label: string }[]
     facetedFilter?: facetedFilter
   }
   defaultColVisibility?: VisibilityState
   deleteManyFn?: (ids: string[]) => void
-  isPendingDeleted?: boolean
+  isPendingDeleted?: boolean,
+  APIPath: string
 }
 
 export function DataTable<TData, TValue>({
   columns,
-  data,
   toolbar,
   deleteManyFn,
   isPendingDeleted,
-  defaultColVisibility
+  defaultColVisibility,
+  APIPath
 }: DataTableProps<TData, TValue>) {
   const [rowSelection, setRowSelection] = React.useState({})
+  const { pagination, onPaginationChange, data, loading, error, total } = usePagination(APIPath)
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>(defaultColVisibility ?? {})
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
@@ -69,6 +73,7 @@ export function DataTable<TData, TValue>({
       columnVisibility,
       rowSelection,
       columnFilters,
+      pagination,
     },
     enableRowSelection: true,
     onRowSelectionChange: setRowSelection,
@@ -81,7 +86,11 @@ export function DataTable<TData, TValue>({
     getSortedRowModel: getSortedRowModel(),
     getFacetedRowModel: getFacetedRowModel(),
     getFacetedUniqueValues: getFacetedUniqueValues(),
+    manualPagination: true,
+    onPaginationChange,
+    rowCount: total
   })
+
 
   return (
     // <div className="space-y-4">
@@ -106,6 +115,7 @@ export function DataTable<TData, TValue>({
           }
         }}
       />
+      {error && <FormError message="somthing want warnog!, Please try agin by refreash page" />}
       <DataTableToolbar
         table={table}
         facetedFilter={toolbar.facetedFilter}
@@ -134,32 +144,44 @@ export function DataTable<TData, TValue>({
                 ))}
               </TableHeader>
               <TableBody>
-                {table.getRowModel().rows?.length ? (
-                  table.getRowModel().rows.map((row) => (
-                    <TableRow
-                      key={row.id}
-                      data-state={row.getIsSelected() && "selected"}
-                    >
-                      {row.getVisibleCells().map((cell) => (
-                        <TableCell key={cell.id}>
-                          {flexRender(
-                            cell.column.columnDef.cell,
-                            cell.getContext()
-                          )}
-                        </TableCell>
-                      ))}
-                    </TableRow>
-                  ))
-                ) : (
+                {loading ? (
                   <TableRow>
                     <TableCell
                       colSpan={columns.length}
                       className="h-24 text-center"
                     >
-                      No Results.
+                      <div className="w-full justify-center items-center flex h-full">
+                        <Spinner />
+                      </div>
                     </TableCell>
                   </TableRow>
-                )}
+                ) : (
+                  table.getRowModel().rows?.length ? (
+                    table.getRowModel().rows.map((row) => (
+                      <TableRow
+                        key={row.id}
+                        data-state={row.getIsSelected() && "selected"}
+                      >
+                        {row.getVisibleCells().map((cell) => (
+                          <TableCell key={cell.id}>
+                            {flexRender(
+                              cell.column.columnDef.cell,
+                              cell.getContext()
+                            )}
+                          </TableCell>
+                        ))}
+                      </TableRow>
+                    ))
+                  ) : (
+                    <TableRow>
+                      <TableCell
+                        colSpan={columns.length}
+                        className="h-24 text-center"
+                      >
+                        No Results.
+                      </TableCell>
+                    </TableRow>
+                  ))}
               </TableBody>
             </Table>
           </div>

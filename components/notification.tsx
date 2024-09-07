@@ -29,7 +29,7 @@ const Notification = () => {
     const getExpairedRental = () => {
       startTransition(async () => {
         try {
-          const res = await axios.get(`/api/${params.businessId}/rentals`);
+          const res = await axios.get(`/api/${params.businessId}/rentals/expired-rental`);
           setData(res.data)
           // toast.success('Get expaired rental successfully.');
         } catch (error: any) {

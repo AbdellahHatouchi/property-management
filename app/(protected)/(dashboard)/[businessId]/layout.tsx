@@ -22,9 +22,9 @@ export default async function DashboardLayout({
   const userData = await getUserById(user.id);
 
   if (!userData) {
-    signOut({
-      callbackUrl: '/sign-in'
-    })
+    // signOut({
+    //   callbackUrl: '/sign-in'
+    // })
     return;
   };
 

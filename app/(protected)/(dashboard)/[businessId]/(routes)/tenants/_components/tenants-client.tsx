@@ -13,7 +13,7 @@ interface TenantsClientProps {
   data: TenantColumn[];
 }
 
-const TenantsClient = ({ data }: TenantsClientProps) => {
+const TenantsClient = () => {
   const params = useParams();
   const router = useRouter();
 
@@ -34,19 +34,19 @@ const TenantsClient = ({ data }: TenantsClientProps) => {
   return (
     <>
       <div className="flex max-md:flex-col gap-3 max-md:px-3 md:items-center justify-between">
-        <Heading title={`Tenants (${data.length})`} description="Manage tenants for your business" />
+        <Heading title={`Tenants`} description="Manage tenants for your business" />
         <Button onClick={() => router.push(`/${params.businessId}/tenants/new`)}>
           <Plus className="mr-2 h-4 w-4" /> Add New
         </Button>
       </div>
       <Separator />
       <DataTable
+        APIPath={`/api/${params.businessId}/tenants`}
         toolbar={{
           facetedFilter,
           searchKeys
         }}
         columns={columns}
-        data={data}
       />
     </>
   )
